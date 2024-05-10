@@ -119,6 +119,38 @@ function Exec_command(string $command): bool
 }
 
 /**
+ * Add modified files back to the current commit.
+ */
+function Git_Add_files(array $files): void
+{
+    $output = null;
+    $return_code = 0;
+    $gitCommand = escapeshellcmd('git add '.implode(' ', array_map('escapeshellarg', $files))).' 2>&1';
+
+    exec($gitCommand, $output, $return_code);
+    if (0 !== $return_code) {
+        echo 'Error: there was an error adding changes to the current commit. Aborting...';
+        exit(1);
+    }
+}
+
+/**
+ * Revert any changes from the lint-staged scripts.
+ */
+function Git_Revert_changes(array $files): void
+{
+    $output = null;
+    $return_code = 0;
+    $gitCommand = escapeshellcmd('git checkout '.implode(' ', array_map('escapeshellarg', $files))).' 2>&1';
+
+    exec($gitCommand, $output, $return_code);
+    if (0 !== $return_code) {
+        echo 'Error: there was an error reverting changes to the current commit. Aborting...';
+        exit(1);
+    }
+}
+
+/**
  * Runs the lint-staged process.
  *
  * @param array $arguments List of file arguments.
@@ -150,6 +182,8 @@ function run(array $arguments): void
         foreach ($commands as $command) {
             $cmd = escapeshellcmd($command.' '.implode(' ', array_map('escapeshellarg', $lint))).' >&1';
             if (!Exec_command($cmd)) {
+                Git_Revert_changes($files);
+
                 echo 'Error: lint aborted'.PHP_EOL;
                 exit(1);
             }
@@ -158,17 +192,7 @@ function run(array $arguments): void
         $filesToStage = [...$filesToStage, ...$lint];
     }
 
-    $filesToStage = array_unique($filesToStage);
-
-    $output = null;
-    $return_code = 0;
-    $gitCommand = escapeshellcmd('git add '.implode(' ', array_map('escapeshellarg', $filesToStage))).' 2>&1';
-
-    exec($gitCommand, $output, $return_code);
-    if (0 !== $return_code) {
-        echo 'Error: there was an error adding changes to the current commit. Aborting...';
-        exit(1);
-    }
+    Git_Add_files(array_unique($filesToStage));
 }
 
 run(array_slice($argv, 1));
