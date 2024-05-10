@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+
+<!-- psalm configuration reference: https://psalm.dev/docs/ -->
 <psalm
     errorLevel="2"
     resolveFromConfigFile="true"
