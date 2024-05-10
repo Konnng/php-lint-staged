@@ -1,17 +1,27 @@
 <?php
+/**
+ * php-cs-fixer configuration file
+ * @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/blob/master/doc/config.rst
+ */
 
-$finder = (new PhpCsFixer\Finder())
+use PhpCsFixer\Finder;
+use PhpCsFixer\Config;
+
+/** @psalm-suppress UndefinedClass */
+$finder = (new Finder())
     ->in('src')
     ->in('tests')
 ;
 
-return (new PhpCsFixer\Config())
+/** @psalm-suppress UndefinedClass */
+return (new Config())
+    // Other rulesets can be found here https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/blob/master/doc/ruleSets/index.rst
+    // List of built-in rules https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/blob/master/doc/rules/index.rst
     ->setRules([
-        '@Symfony' => true,
+        '@PSR12' => true,
         'phpdoc_annotation_without_dot' => false,
-        'nullable_type_declaration_for_default_null_value' => [
-            'use_nullable_type_declaration' => true,
-        ],
+
+        // this rule is important to avoid messing with psalm suppress errors declarations
         'phpdoc_to_comment' => [
             'ignored_tags' => ['psalm-suppress'],
         ],

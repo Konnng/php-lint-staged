@@ -2,23 +2,20 @@
 /**
  * Post install script, after installing all composer packages.
  */
-
-/*
- * URL for pslam bin file
- */
-define('PSALM_INSTALL_URL', 'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar');
 define('ROOT_DIR', realpath(__DIR__.DIRECTORY_SEPARATOR.'..'));
 
+define('PSALM_INSTALL_URL', 'https://github.com/vimeo/psalm/releases/latest/download/psalm.phar');
+define('PHPCSFIXER_INSTALL_URL', 'https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar');
+
 /**
- * Installs vimeo/psalm stand alone bin.
+ * Downloads a file using curl.
+ * Case file does not exists or there is a network error. Execution will stop.
  */
-function Install_psalm(): void
+function Download_file(string $url, ?string $path = null): string
 {
-    $file = basename(PSALM_INSTALL_URL);
+    $file = ROOT_DIR.DIRECTORY_SEPARATOR.basename((bool) $path ? $path : $url);
 
-    echo 'Installing psalm code analysis tool...'.PHP_EOL;
-
-    $ch = curl_init(PSALM_INSTALL_URL);
+    $ch = curl_init($url);
     if (false === $ch) {
         echo 'Error: there was an error preparing to download psalm. Aborting.'.PHP_EOL;
         exit(1);
@@ -36,16 +33,42 @@ function Install_psalm(): void
     curl_close($ch);
     fclose($fp);
 
+    return $file;
+}
+
+/**
+ * Installs vimeo/psalm stand alone bin.
+ */
+function Install_psalm(): void
+{
+    echo 'Installing psalm code analysis tool...'.PHP_EOL;
+
+    $file = Download_file(PSALM_INSTALL_URL);
     if (!is_file($file)) {
         echo 'Error: psalm executable not found. Aborting install'.PHP_EOL;
         exit(1);
     } elseif (!chmod($file, 0755)) {
-        // Set executable permissions
-        echo 'Error: error setting correct permissions.'.PHP_EOL;
+        echo 'Error: error setting correct permissions for psalm.'.PHP_EOL;
         exit(1);
     }
 
     echo 'Install psalm complete'.PHP_EOL;
+}
+
+/**
+ * Installs vimeo/psalm stand alone bin.
+ */
+function Install_phpcsfixer(): void
+{
+    echo 'Installing php-cs-fixer code analysis tool...'.PHP_EOL;
+
+    $file = Download_file(PHPCSFIXER_INSTALL_URL);
+    if (!is_file($file)) {
+        echo 'Error: php-cs-fixer executable not found. Aborting install'.PHP_EOL;
+        exit(1);
+    }
+
+    echo 'Install php-cs-fixer complete'.PHP_EOL;
 }
 
 /**
@@ -114,7 +137,13 @@ function setup()
 
     Install_psalm();
     echo PHP_EOL;
+
+    Install_phpcsfixer();
+    echo PHP_EOL;
+
     Setup_hooks();
+    echo PHP_EOL;
+
     Copy_config();
     echo PHP_EOL;
 
