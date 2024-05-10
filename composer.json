@@ -1,0 +1,31 @@
+{
+  "name": "my/app",
+  "description": "My wonderful PHP application",
+  "keywords": [],
+  "license": "MIT",
+  "require": {
+      "php": "^8.1"
+  },
+  "require-dev": {
+      "friendsofphp/php-cs-fixer": "^3.48",
+      "webmozart/glob": "^4.7",
+      "nikic/iter": "^2.4"
+  },
+  "scripts": {
+    "setup": "test ! -f composer.lock && php .config/post-install.php || echo 'Skipping setup...'",
+    "lint": ["php-cs-fixer fix --config .php-cs-fixer.dist.php", "./psalm.phar"],
+    "pre-update-cmd": "composer run-script setup"
+  },
+  "autoload": {
+    "psr-4": {
+      "My\\App\\": "src/"
+    }
+  },
+  "extra": {
+      "lint-staged": {
+          "**/*.php": [
+              "composer run-script lint"
+          ]
+      }
+  }
+}
