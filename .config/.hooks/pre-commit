@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+    AGAINST=HEAD
+else
+    # Initial commit: diff against an empty tree object
+    AGAINST=$(git rev-list --max-parents=0 HEAD)
+fi
+
+FILES=$(git diff --cached --name-only --diff-filter=ACM $AGAINST)
+
+echo $FILES
+
+php .config/lint-staged.php $FILES
