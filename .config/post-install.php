@@ -84,7 +84,7 @@ function Setup_hooks(): void
 }
 
 /**
- * Copy relevant configuration files
+ * Copy relevant configuration files.
  */
 function Copy_config(): void
 {
