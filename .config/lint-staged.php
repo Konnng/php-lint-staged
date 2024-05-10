@@ -134,6 +134,8 @@ function run(array $arguments): void
         exit(1);
     }
 
+    $filesToStage = [];
+
     foreach ($config as $pattern => $commands) {
         $foundFiles = array_filter($files, fn ($file) => Glob::match(__DIR__.DIRECTORY_SEPARATOR.$file, __DIR__.DIRECTORY_SEPARATOR.$pattern));
         $filteredFiles = array_filter($foundFiles, fn ($file) => !Should_ignore($file, $ignoreList));
@@ -152,6 +154,20 @@ function run(array $arguments): void
                 exit(1);
             }
         }
+
+        $filesToStage = [...$filesToStage, ...$lint];
+    }
+
+    $filesToStage = array_unique($filesToStage);
+
+    $output = null;
+    $return_code = 0;
+    $gitCommand = escapeshellcmd('git add '.implode(' ', array_map('escapeshellarg', $filesToStage))).' 2>&1';
+
+    exec($gitCommand, $output, $return_code);
+    if (0 !== $return_code) {
+        echo 'Error: there was an error adding changes to the current commit. Aborting...';
+        exit(1);
     }
 }
 
