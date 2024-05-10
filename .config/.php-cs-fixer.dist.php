@@ -9,8 +9,8 @@ use PhpCsFixer\Config;
 
 /** @psalm-suppress UndefinedClass */
 $finder = (new Finder())
-    ->in('src')
-    ->in('tests')
+    ->in(['src', 'tests'])
+    ->exclude(['.history', '.config'])
 ;
 
 /** @psalm-suppress UndefinedClass */
