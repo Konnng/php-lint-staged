@@ -9,4 +9,5 @@ This is a little experiment to test availability of using the same approach we h
 ## Requirements
 
 * PHP application written using composer to manage packages.
+* PHP version >= `8.1`
 * For now, it only runs with `composer` installed globally and on `*nix` systems (MacOS, Linux and Windows WSL).
